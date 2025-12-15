@@ -67,8 +67,8 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
-    # TODO: Implement this function
-    raise NotImplementedError
+    value = int(attention_score * 255)
+    return (value, value, value)
 
 
 
@@ -82,13 +82,21 @@ def visualize_attentions(tokens, attentions):
     include both the layer number (starting count from 1) and head number
     (starting count from 1).
     """
-    # TODO: Update this function to produce diagrams for all layers and heads.
-    generate_diagram(
-        1,
-        1,
-        tokens,
-        attentions[0][0][0]
-    )
+    num_layers = len(attentions)
+
+    for layer_index in range(num_layers):
+        num_heads = len(attentions[layer_index])
+
+        for head_index in range(num_heads):
+            # Attention matrix for this layer and head
+            attention_matrix = attentions[layer_index][head_index][0]
+
+            generate_diagram(
+                layer_index + 1,
+                head_index + 1,
+                tokens,
+                attention_matrix
+            )
 
 
 def generate_diagram(layer_number, head_number, tokens, attention_weights):
@@ -140,7 +148,7 @@ def generate_diagram(layer_number, head_number, tokens, attention_weights):
     # Save image
     img.save(f"Attention_Layer{layer_number}_Head{head_number}.png")
 
-
+# Testes das funções AI generated
 if __name__ == "__main__":
 
     # Simulação de inputs do tokenizer
@@ -153,3 +161,29 @@ if __name__ == "__main__":
     index = get_mask_token_index(mask_token_id, inputs)
     print("Mask index:", index)
 
+
+    print(get_color_for_attention_score(0.0))   # (0, 0, 0)
+    print(get_color_for_attention_score(0.5))   # (~127, ~127, ~127)
+    print(get_color_for_attention_score(1.0))   # (255, 255, 255)
+
+    tokens = ["[CLS]", "The", "cat", "sat", "[SEP]"]
+
+    # Criar attentions falsas:
+    # 2 layers, 2 heads, batch size 1, tokens x tokens
+    attentions = []
+
+    for _ in range(2):  # layers
+        layer = []
+        for _ in range(2):  # heads
+            head = [
+                [
+                    [j / len(tokens) for j in range(len(tokens))]
+                    for _ in range(len(tokens))
+                ]
+            ]  # batch dimension
+            layer.append(head)
+        attentions.append(layer)
+
+    visualize_attentions(tokens, attentions)
+
+    print("Diagramas de atenção gerados com sucesso.")
