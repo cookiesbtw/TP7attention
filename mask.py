@@ -45,8 +45,20 @@ def get_mask_token_index(mask_token_id, inputs):
     Return the index of the token with the specified `mask_token_id`, or
     `None` if not present in the `inputs`.
     """
-    # TODO: Implement this function
-    raise NotImplementedError
+    input_ids = inputs["input_ids"][0]
+
+
+    # Convert TensorFlow tensor to list if needed
+    try:
+        input_ids = input_ids.numpy().tolist()
+    except AttributeError:
+        pass
+
+
+    for i, token_id in enumerate(input_ids):
+        if token_id == mask_token_id:
+            return i
+    return None
 
 
 
@@ -130,4 +142,14 @@ def generate_diagram(layer_number, head_number, tokens, attention_weights):
 
 
 if __name__ == "__main__":
-    main()
+
+    # Simulação de inputs do tokenizer
+    inputs = {
+        "input_ids": [[101, 2023, 2003, 103, 102]]
+    }
+
+    mask_token_id = 103  # ID padrão do [MASK] no BERT
+
+    index = get_mask_token_index(mask_token_id, inputs)
+    print("Mask index:", index)
+
